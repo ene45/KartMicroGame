@@ -1,6 +1,6 @@
 # Circuito de mazmorra
 
-Esta entrega contiene el generador de editor. Para crear la escena, importá el paquete y ejecutá `Tools > Dungeon Track > Crear una copia nueva del circuito`.
+Esta entrega incluye la escena generada, sus materiales, vistas previas y el generador de editor. Importá el paquete en el proyecto Kart Microgame y abrí `Assets/DungeonTrack/DungeonCircuit 4.unity`.
 
 Escena generada: `Assets/DungeonTrack/DungeonCircuit.unity` (o una copia con nombre nuevo si ya existe).
 
@@ -41,4 +41,6 @@ Los saltos tienen huecos iniciales de 3 m y 3,5 m. Sus medidas, aterrizajes y co
 
 La nueva escena no reemplaza la escena del menú ni cambia la lista de escenas del build. Para probarla, abrila directamente. La integración con el menú se puede hacer al terminar de ajustar la pista.
 
-El generador se compiló con las bibliotecas de Unity 6000.0.42f1 y ProBuilder 6.0.4. La ejecución y las vistas previas dentro del editor quedan pendientes hasta importar y generar en el Unity del usuario.
+El generador se compiló y ejecutó en Unity 6000.0.42f1 con ProBuilder 6.0.4. La escena contiene 125 mallas ProBuilder y 28 tramos de carretera. Pasaron 2715 comprobaciones de superficie mediante raycasts, la revisión de triángulos y uniones y la reapertura de la escena guardada con sus mallas y colliders conservados. Las vistas previas se capturaron desde esa escena en Unity.
+
+Si tenés abierta una copia anterior llamada `DungeonCircuit.unity`, esa copia corresponde a la generación fallida inicial y conserva la pista original. Abrí la escena incluida indicada arriba. La nueva generación asigna identificadores independientes a los tutoriales para poder abrirla junto a MainScene sin colisiones.

@@ -1,0 +1,8 @@
+Unity 6000.0.42f1
+Ancho principal: 18 m. Ancho de cada ramal: 18 m; bocas de unión: 6 m cada una.
+Mallas ProBuilder: 125. Tramos de carretera: 28.
+Raycasts sobre superficie: 2715, correctos. Triángulos sin degeneraciones.
+Ramal central: 62,0 m; lateral interior: 82,1 m; lateral exterior: 82,1 m.
+Saltos: dos, huecos de 3 m y 3.5 m. Peralte máximo: 9 grados. Puente: 8 m de altura.
+Trampas y comportamiento de salto del kart pendientes de ajuste en Play Mode.
+Escena reabierta: 125 mallas ProBuilder conservadas, colliders correctos.

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Cinemachine;
 using KartGame.KartSystems;
 using UnityEditor;
@@ -276,6 +277,15 @@ namespace DungeonTrack.Editor
             // looks like the finished circuit but still contains the original track.
             string staging = AssetDatabase.GenerateUniqueAssetPath(Folder + "/DungeonCircuit_BuildInProgress.unity");
             if (!AssetDatabase.CopyAsset("Assets/Karting/Scenes/MainScene.unity", staging)) throw new IOException("No se pudo copiar MainScene.");
+            // Tutorial IDs are global across loaded editor scenes. A copied SceneObjectGuid
+            // must receive a fresh ID before OnValidate runs during additive loading.
+            string copiedScene = File.ReadAllText(staging);
+            copiedScene = Regex.Replace(copiedScene, @"(?ms)^--- !u!114 &-?\d+\r?\n.*?(?=^---|\z)", section =>
+                section.Value.Contains("guid: c8534e17a0f90604c9afd4f5c73d829f")
+                    ? Regex.Replace(section.Value, @"(?m)^  m_Id: [0-9a-fA-F-]{36}\r?$", "  m_Id: " + Guid.NewGuid())
+                    : section.Value);
+            File.WriteAllText(staging, copiedScene);
+            AssetDatabase.ImportAsset(staging, ImportAssetOptions.ForceUpdate);
             Scene previous = SceneManager.GetActiveScene();
             Scene scene = EditorSceneManager.OpenScene(staging, OpenSceneMode.Additive);
             SceneManager.SetActiveScene(scene);
@@ -284,7 +294,8 @@ namespace DungeonTrack.Editor
             {
                 // Operates exclusively on the copied scene, including its prefab instances.
                 foreach (var root in scene.GetRootGameObjects())
-                    if (new[] { "Environment", "Trees", "Hills", "Stones", "OvalTrack", "AdditionalTrack", "Clouds", "Action1" }.Contains(root.name)) Object.DestroyImmediate(root);
+                    if (new[] { "Environment", "Trees", "Hills", "Stones", "OvalTrack", "AdditionalTrack", "Clouds", "Action1", "Particle System" }.Contains(root.name)
+                        || root.name.StartsWith("StoneFlat", StringComparison.Ordinal)) Object.DestroyImmediate(root);
                 foreach (var target in scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<TargetObject>(true)).ToArray())
                     Object.DestroyImmediate(target.gameObject);
 
@@ -302,6 +313,11 @@ namespace DungeonTrack.Editor
                 var exterior = Group("04_Pasto_Exterior", circuit);
                 var arches = Group("05_Arcos_Entrada_Salida", circuit);
                 var lighting = Group("06_Iluminacion", circuit);
+                foreach (var light in scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<UnityEngine.Light>(true)).Where(l => l.type == LightType.Directional))
+                {
+                    light.color = Color.white;
+                    light.intensity = 1.2f;
+                }
                 var reserves = Group("07_Reservas_Trampas_Y_Landmark", circuit);
 
                 Path("Z1_Meta_Aproximacion", new[] { new Knot(-104, 62), new Knot(-94, 78), new Knot(-78, 82), new Knot(-57, 82) }, false, new Vector3(3, 0, 15), Vector3.right * 21);
@@ -478,10 +494,18 @@ namespace DungeonTrack.Editor
 
         static void Preview(Scene scene, Transform circuit)
         {
+            // URP render requests can also draw other additively loaded editor scenes.
+            // Hide their renderers only while capturing, then restore their exact state.
+            var otherRenderers = Enumerable.Range(0, SceneManager.sceneCount)
+                .Select(SceneManager.GetSceneAt).Where(s => s != scene && s.isLoaded)
+                .SelectMany(s => s.GetRootGameObjects())
+                .SelectMany(g => g.GetComponentsInChildren<Renderer>(true)).Where(r => r.enabled).ToArray();
+            foreach (var renderer in otherRenderers) renderer.enabled = false;
             var ceilingGroup = circuit.Find("03_Techos_Ocultar_Para_Editar");
             ceilingGroup.gameObject.SetActive(false);
             var cameraObject = new GameObject("PreviewCamera_TEMP"); SceneManager.MoveGameObjectToScene(cameraObject, scene);
             var camera = cameraObject.AddComponent<Camera>();
+            camera.scene = scene;
             camera.overrideSceneCullingMask = EditorSceneManager.GetSceneCullingMask(scene);
             camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = new Color(.09f, .12f, .17f);
             camera.nearClipPlane = .3f; camera.farClipPlane = 1200;
@@ -498,7 +522,12 @@ namespace DungeonTrack.Editor
                 ceilingGroup.gameObject.SetActive(true);
                 Render(camera, Folder + "/Preview/Entrada.png", 1600, 900);
             }
-            finally { ceilingGroup.gameObject.SetActive(true); Object.DestroyImmediate(cameraObject); }
+            finally
+            {
+                ceilingGroup.gameObject.SetActive(true);
+                Object.DestroyImmediate(cameraObject);
+                foreach (var renderer in otherRenderers) if (renderer != null) renderer.enabled = true;
+            }
         }
 
         static void Render(Camera camera, string path, int width, int height)
@@ -520,4 +549,3 @@ namespace DungeonTrack.Editor
         }
     }
 }
-
