@@ -174,6 +174,10 @@ namespace KartGame.KartSystems
         bool m_CanMove = true;
         float m_TrapBrakeDeceleration;
         public bool IsTrapBraking => m_TrapBrakeDeceleration > 0f;
+        float m_TrapStunRemaining;
+        RigidbodyConstraints m_ConstraintsBeforeStun;
+        public bool IsTrapStunned => m_TrapStunRemaining > 0f;
+        public float TrapStunSecondsRemaining => m_TrapStunRemaining;
         [Header("ACTIVE POWER UPS VIEWER")]
         [SerializeField] List<StatPowerup> m_ActivePowerupList = new List<StatPowerup>();
         [Header("FINAL STATS VIEWER")]
@@ -192,7 +196,7 @@ namespace KartGame.KartSystems
         /// <summary>Brake to a stop once, without changing countdown/bounce movement locks.</summary>
         public void ApplyTrapBrake(float deceleration)
         {
-            if (float.IsNaN(deceleration) || float.IsInfinity(deceleration) || deceleration <= 0f)
+            if (IsTrapStunned || float.IsNaN(deceleration) || float.IsInfinity(deceleration) || deceleration <= 0f)
                 return;
             m_TrapBrakeDeceleration = Mathf.Max(m_TrapBrakeDeceleration, deceleration);
         }
@@ -213,7 +217,32 @@ namespace KartGame.KartSystems
                 m_TrapBrakeDeceleration = 0f;
         }
 
-        void OnDisable() => m_TrapBrakeDeceleration = 0f;
+        /// <summary>Stop in place, including on slopes, independently of countdown/bounce locks.</summary>
+        public void ApplyTrapStun(float seconds)
+        {
+            if (Rigidbody == null || float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds <= 0f)
+                return;
+            if (!IsTrapStunned) m_ConstraintsBeforeStun = Rigidbody.constraints;
+            m_TrapStunRemaining = Mathf.Max(m_TrapStunRemaining, seconds);
+            m_TrapBrakeDeceleration = 0f;
+            Rigidbody.linearVelocity = Vector3.zero;
+            Rigidbody.angularVelocity = Vector3.zero;
+            Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+            IsDrifting = WantsToDrift = false;
+            ActivateDriftVFX(false);
+        }
+
+        void ReleaseTrapStun()
+        {
+            if (Rigidbody != null) Rigidbody.constraints = m_ConstraintsBeforeStun;
+            m_TrapStunRemaining = 0f;
+        }
+
+        void OnDisable()
+        {
+            m_TrapBrakeDeceleration = 0f;
+            if (IsTrapStunned) ReleaseTrapStun();
+        }
 
 
         public void RemovePowerUp(StatPowerup statPowerup)
@@ -346,13 +375,21 @@ namespace KartGame.KartSystems
             AirPercent = 1 - GroundPercent;
 
             // apply vehicle physics
-            if (m_CanMove)
+            if (m_CanMove && !IsTrapStunned)
             {
                 MoveVehicle(Input.Accelerate, Input.Brake, Input.TurnInput);
             }
-            GroundAirbourne();
-
-            TickTrapBrake();
+            if (IsTrapStunned)
+            {
+                Rigidbody.linearVelocity = Rigidbody.angularVelocity = Vector3.zero;
+                m_TrapStunRemaining -= Time.fixedDeltaTime;
+                if (m_TrapStunRemaining <= 0f) ReleaseTrapStun();
+            }
+            else
+            {
+                GroundAirbourne();
+                TickTrapBrake();
+            }
 
             m_PreviousGroundPercent = GroundPercent;
 
@@ -372,10 +409,11 @@ namespace KartGame.KartSystems
                 WantsToDrift = Input.Drifting;
             }
 
-            if (IsTrapBraking)
+            if (IsTrapBraking || IsTrapStunned)
             {
                 var input = Input;
                 input.Accelerate = input.Brake = input.Drifting = false;
+                if (IsTrapStunned) input.TurnInput = 0f;
                 Input = input;
                 WantsToDrift = false;
             }

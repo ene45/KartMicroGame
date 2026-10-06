@@ -19,6 +19,10 @@ La escena `Assets/DungeonTrack/DungeonCircuit_Trampas.unity` agrega tres zonas d
 
 Si ya editaste la pista, agregá las zonas con `Tools > Dungeon Track > Agregar aceleradores y pinches a la escena actual`. El menú usa las alturas actuales y admite Undo. La guía completa está en [TRAMPAS.md](TRAMPAS.md).
 
+## Rocas por vuelta
+
+**DungeonCircuit_Rocas.unity** conserva el ejemplo anterior y agrega tres recorridos de rocas con puntos vacíos editables. Configurá velocidad, intervalo y detención por vuelta en **TRAMPAS_POR_VUELTA > ROCAS_POR_VUELTA**. Para agregarlas a una escena ya editada usá **Tools > Dungeon Track > Agregar rocas a la escena actual**. La guía está en [ROCAS.md](ROCAS.md).
+
 ## Editar con ProBuilder
 
 En la jerarquía, abrí `CIRCUITO_MAZMORRA_PROBUILDER`:
