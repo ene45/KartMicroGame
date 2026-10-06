@@ -172,6 +172,8 @@ namespace KartGame.KartSystems
 
         // can the kart move?
         bool m_CanMove = true;
+        float m_TrapBrakeDeceleration;
+        public bool IsTrapBraking => m_TrapBrakeDeceleration > 0f;
         [Header("ACTIVE POWER UPS VIEWER")]
         [SerializeField] List<StatPowerup> m_ActivePowerupList = new List<StatPowerup>();
         [Header("FINAL STATS VIEWER")]
@@ -186,6 +188,32 @@ namespace KartGame.KartSystems
         public void AddPowerup(StatPowerup statPowerup) => m_ActivePowerupList.Add(statPowerup);
         public void SetCanMove(bool move) => m_CanMove = move;
         public float GetMaxSpeed() => Mathf.Max(m_FinalStats.TopSpeed, m_FinalStats.ReverseSpeed);
+
+        /// <summary>Brake to a stop once, without changing countdown/bounce movement locks.</summary>
+        public void ApplyTrapBrake(float deceleration)
+        {
+            if (float.IsNaN(deceleration) || float.IsInfinity(deceleration) || deceleration <= 0f)
+                return;
+            m_TrapBrakeDeceleration = Mathf.Max(m_TrapBrakeDeceleration, deceleration);
+        }
+
+        void TickTrapBrake()
+        {
+            if (!IsTrapBraking) return;
+
+            // Brake motion along the road, preserving suspension/falling along its normal.
+            Vector3 normal = GroundPercent > 0f ? m_VerticalReference.normalized : Vector3.up;
+            Vector3 normalVelocity = Vector3.Project(Rigidbody.linearVelocity, normal);
+            Vector3 roadVelocity = Rigidbody.linearVelocity - normalVelocity;
+            roadVelocity = Vector3.MoveTowards(roadVelocity, Vector3.zero,
+                m_TrapBrakeDeceleration * Time.fixedDeltaTime);
+            if (roadVelocity.sqrMagnitude < .000001f) roadVelocity = Vector3.zero;
+            Rigidbody.linearVelocity = normalVelocity + roadVelocity;
+            if (roadVelocity == Vector3.zero)
+                m_TrapBrakeDeceleration = 0f;
+        }
+
+        void OnDisable() => m_TrapBrakeDeceleration = 0f;
 
 
         public void RemovePowerUp(StatPowerup statPowerup)
@@ -324,6 +352,8 @@ namespace KartGame.KartSystems
             }
             GroundAirbourne();
 
+            TickTrapBrake();
+
             m_PreviousGroundPercent = GroundPercent;
 
             UpdateDriftVFXOrientation();
@@ -340,6 +370,14 @@ namespace KartGame.KartSystems
             {
                 Input = m_Inputs[i].GenerateInput();
                 WantsToDrift = Input.Drifting;
+            }
+
+            if (IsTrapBraking)
+            {
+                var input = Input;
+                input.Accelerate = input.Brake = input.Drifting = false;
+                Input = input;
+                WantsToDrift = false;
             }
         }
 

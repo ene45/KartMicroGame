@@ -11,7 +11,13 @@ Abrí `Assets/DungeonTrack/DungeonCircuit_Ajustes.unity`. Esta entrega incluye l
 - Exterior: pasto continuo bajo la meta, la aproximación, el primer salto y el tramo de salida. La carretera exterior sigue teniendo 18 m de ancho.
 - Contención: bordes con collider, de 1,4 m de altura y 0,9 m de espesor, junto a toda la carretera interior, incluidos los tres caminos y el segundo salto. Siguen las alturas y el peralte de la pista.
 
-Se conservan los tres caminos de la entrada: el central mide 62 m y cada lateral aproximadamente 82 m. Los saltos tienen huecos iniciales de 3 m y 3,5 m. Las trampas, los boosts y la decoración del landmark quedan para la siguiente etapa.
+Se conservan los tres caminos de la entrada: el central mide 62 m y cada lateral aproximadamente 82 m. Los saltos tienen huecos iniciales de 3 m y 3,5 m. La decoración del landmark y las demás trampas quedan para las siguientes etapas.
+
+## Aceleradores y pinches
+
+La escena `Assets/DungeonTrack/DungeonCircuit_Trampas.unity` agrega tres zonas de aceleradores y pinches configurables por vuelta. En `TRAMPAS_POR_VUELTA`, seleccioná una zona y elegí su estado para Vuelta 1, Vuelta 2 y Vuelta 3. El controlador usa el contador original y también admite futuras trampas.
+
+Si ya editaste la pista, agregá las zonas con `Tools > Dungeon Track > Agregar aceleradores y pinches a la escena actual`. El menú usa las alturas actuales y admite Undo. La guía completa está en [TRAMPAS.md](TRAMPAS.md).
 
 ## Editar con ProBuilder
 
@@ -36,4 +42,4 @@ Generación y reapertura en Unity 6000.0.42f1 con ProBuilder 6.0.4: 114 mallas e
 
 `Validation.txt` conserva el resultado. En `Preview`, `Planta` y `Perspectiva` muestran la sala con el techo oculto; `Sala` y `Entrada` muestran el interior con el techo activo.
 
-Falta probar y calibrar las pendientes y los saltos conduciendo el kart. Sus valores están preparados para modificarlos manualmente. MainScene y los scripts de conducción se conservan; la nueva escena no cambia el menú ni la lista de escenas del build.
+Falta calibrar las pendientes, los saltos y los parámetros de las zonas conduciendo la pista completa. MainScene se conserva; ArcadeKart incorpora el frenado de los pinches y ObjectiveCompleteLaps expone el evento de nueva vuelta. La nueva escena no cambia el menú ni la lista de escenas del build.

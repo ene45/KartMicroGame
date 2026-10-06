@@ -14,7 +14,10 @@ public class ObjectiveCompleteLaps : Objective
 
 
     
+    // currentLap is the number of COMPLETED laps, as used by the existing HUD.
     public int currentLap { get; private set; }
+    public int CurrentRaceLap => Mathf.Clamp(currentLap + 1, 1, Mathf.Max(1, lapsToComplete));
+    public event System.Action<int> LapStarted;
 
     void Awake()
     {
@@ -41,6 +44,11 @@ public class ObjectiveCompleteLaps : Objective
             return;
 
         currentLap++;
+
+        // The first crossing starts the existing lap timer without reaching this method.
+        // Only a completed lap starts a new trap configuration; finishing starts no lap 4.
+        if (currentLap < lapsToComplete)
+            LapStarted?.Invoke(CurrentRaceLap);
 
         int targetRemaining = lapsToComplete - currentLap;
 
