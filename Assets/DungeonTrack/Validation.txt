@@ -1,8 +1,11 @@
 Unity 6000.0.42f1
-Ancho principal: 18 m. Ancho de cada ramal: 18 m; bocas de unión: 6 m cada una.
-Mallas ProBuilder: 125. Tramos de carretera: 28.
-Raycasts sobre superficie: 2715, correctos. Triángulos sin degeneraciones.
+Anchos: exterior y roja 18 m, azul 24 m, violeta 32 m; transiciones graduales. Ramales: hasta 18 m; bocas 6 m.
+Mallas ProBuilder: 114. Tramos de carretera: 28.
+Raycasts sobre superficie: 2745, correctos. Triángulos sin degeneraciones.
+Bordes bajos: 1,4 m. Raycasts laterales: 962, correctos.
+Sala: envolvente 280 x 280 m, esquina exterior recortada, techo a 60 m, centro libre 110 x 100 m. Portales sin paredes que los bloqueen.
+Pasto exterior: 213 raycasts bajo la carretera, correctos. Suelo central de la sala conservado.
 Ramal central: 62,0 m; lateral interior: 82,1 m; lateral exterior: 82,1 m.
-Saltos: dos, huecos de 3 m y 3.5 m. Peralte máximo: 9 grados. Puente: 8 m de altura.
+Saltos: dos, huecos de 3 m y 3.5 m. Peralte máximo: 9 grados. Roja: cima aproximada 28 m, bajada hasta 0 m. Violeta: izquierda 20 m, derecha 0 m.
 Trampas y comportamiento de salto del kart pendientes de ajuste en Play Mode.
-Escena reabierta: 125 mallas ProBuilder conservadas, colliders correctos.
+Escena reabierta: 114 mallas ProBuilder conservadas, colliders correctos.

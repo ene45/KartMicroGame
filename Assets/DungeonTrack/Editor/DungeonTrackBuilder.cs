@@ -21,16 +21,24 @@ namespace DungeonTrack.Editor
     public static class DungeonTrackBuilder
     {
         public const string Folder = "Assets/DungeonTrack";
-        public const string ScenePath = Folder + "/DungeonCircuit.unity";
+        public const string ScenePath = Folder + "/DungeonCircuit_Ajustes.unity";
         public static string LastGeneratedScenePath { get; private set; }
         const float Width = 18f;
         const float Step = 2f;
         const float Thickness = .6f;
-        const float CeilingHeight = 14f;
-        static Transform roads, walls, roofs;
+        const float CeilingHeight = 60f;
+        const float BorderHeight = 1.4f;
+        const float BorderThickness = .9f;
+        const float RoomFloor = -4.5f;
+        static readonly Vector3 Entry = new Vector3(-28, 0, 82);
+        static readonly Vector3 Exit = new Vector3(-101, 0, 35);
+        static readonly Vector3 ExitForward = new Vector3(-8, 0, 16.5f).normalized;
+        static readonly Vector3[] RoomOutline = MakeRoomOutline();
+        static Transform roads, walls, roofs, borders;
+        static MeshCollider roomFloorCollider, exteriorGroundCollider;
         static Material roadMat, stoneMat, roofMat, grassMat, whiteMat, blackMat, cyanMat;
         static readonly List<RoadRecord> records = new List<RoadRecord>();
-        static int serial;
+        static readonly List<BorderRecord> borderRecords = new List<BorderRecord>();
 
         struct Frame
         {
@@ -44,11 +52,18 @@ namespace DungeonTrack.Editor
             public List<Frame> frames;
             public string route;
         }
+        class BorderRecord
+        {
+            public MeshCollider collider;
+            public List<Frame> frames;
+            public string name;
+            public int side;
+        }
         struct Knot
         {
             public Vector3 p;
-            public float bank;
-            public Knot(float x, float z, float y = 0, float b = 0) { p = new Vector3(x, y, z); bank = b; }
+            public float bank, width;
+            public Knot(float x, float z, float y = 0, float b = 0, float w = Width) { p = new Vector3(x, y, z); bank = b; width = w; }
         }
         class Geometry
         {
@@ -59,6 +74,12 @@ namespace DungeonTrack.Editor
                 int n = vertices.Count;
                 vertices.AddRange(new[] { a, b, c, d });
                 faces.Add(new Face(new[] { n, n + 1, n + 2, n, n + 2, n + 3 }) { smoothingGroup = smooth ? 1 : 0 });
+            }
+            public void Triangle(Vector3 a, Vector3 b, Vector3 c)
+            {
+                int n = vertices.Count;
+                vertices.AddRange(new[] { a, b, c });
+                faces.Add(new Face(new[] { n, n + 1, n + 2 }));
             }
         }
 
@@ -129,8 +150,8 @@ namespace DungeonTrack.Editor
                 float wa = widthOverride > 0 ? widthOverride : f[i].width;
                 float wb = widthOverride > 0 ? widthOverride : f[i + 1].width;
                 // A centerOffset of +/-1 places wall strips outside the driving surface.
-                float ca = centerOffset == 0 ? 0 : centerOffset * (f[i].width / 2 + .65f);
-                float cb = centerOffset == 0 ? 0 : centerOffset * (f[i + 1].width / 2 + .65f);
+                float ca = centerOffset == 0 ? 0 : centerOffset * (f[i].width / 2 + widthOverride / 2);
+                float cb = centerOffset == 0 ? 0 : centerOffset * (f[i + 1].width / 2 + widthOverride / 2);
                 for (int j = 0; j < cross; j++)
                 {
                     float a0 = ca + wa * ((float)j / cross - .5f), a1 = ca + wa * ((float)(j + 1) / cross - .5f);
@@ -146,7 +167,7 @@ namespace DungeonTrack.Editor
             {
                 Frame row = f[end == 0 ? 0 : f.Count - 1];
                 float w = widthOverride > 0 ? widthOverride : row.width;
-                float c = centerOffset == 0 ? 0 : centerOffset * (row.width / 2 + .65f);
+                float c = centerOffset == 0 ? 0 : centerOffset * (row.width / 2 + widthOverride / 2);
                 for (int j = 0; j < cross; j++)
                 {
                     float l = c + w * ((float)j / cross - .5f), r = c + w * ((float)(j + 1) / cross - .5f);
@@ -156,6 +177,7 @@ namespace DungeonTrack.Editor
             }
             var mesh = Mesh(name, geo, parent, material, layer, collision);
             if (parent == roads) records.Add(new RoadRecord { mesh = mesh, frames = f, route = name });
+            if (parent == borders) borderRecords.Add(new BorderRecord { collider = mesh.GetComponent<MeshCollider>(), frames = f, name = name, side = centerOffset < 0 ? -1 : 1 });
         }
 
         static List<Frame> Frames(Knot a, Knot b, Vector3 ta, Vector3 tb, Func<float, float> width = null)
@@ -168,7 +190,7 @@ namespace DungeonTrack.Editor
                 Vector3 p = (2 * t3 - 3 * t2 + 1) * a.p + (t3 - 2 * t2 + t) * ta + (-2 * t3 + 3 * t2) * b.p + (t3 - t2) * tb;
                 Vector3 tangent = (6 * t2 - 6 * t) * a.p + (3 * t2 - 4 * t + 1) * ta + (-6 * t2 + 6 * t) * b.p + (3 * t2 - 2 * t) * tb;
                 Vector3 right = Vector3.Cross(Vector3.up, tangent).normalized;
-                rows.Add(new Frame { p = p, right = right, bank = Mathf.Lerp(a.bank, b.bank, Mathf.SmoothStep(0, 1, t)), width = width == null ? Width : width(t) });
+                rows.Add(new Frame { p = p, right = right, bank = Mathf.Lerp(a.bank, b.bank, Mathf.SmoothStep(0, 1, t)), width = width == null ? Mathf.Lerp(a.width, b.width, Mathf.SmoothStep(0, 1, t)) : width(t) });
             }
             return rows;
         }
@@ -177,9 +199,15 @@ namespace DungeonTrack.Editor
         {
             Solid(name, f, roads, roadMat, 11, 0, 0, 0, -Thickness, true, 7);
             if (!indoors) return;
-            Solid(name + "_Pared_Izq", f, walls, stoneMat, 10, 1.3f, -1, CeilingHeight, -3, false);
-            Solid(name + "_Pared_Der", f, walls, stoneMat, 10, 1.3f, 1, CeilingHeight, -3, false);
-            Solid(name + "_Techo", f, roofs, roofMat, 10, Width + 2.6f, 0, CeilingHeight + .5f, CeilingHeight, false, 7);
+            TrackBorders(name, f);
+        }
+
+        static void TrackBorders(string name, List<Frame> f)
+        {
+            // These low barriers follow the road's height and bank. The large room's
+            // outer walls and ceiling are independent of the driving surface.
+            Solid(name + "_Borde_Izq", f, borders, stoneMat, 10, BorderThickness, -1, BorderHeight, -Thickness, true);
+            Solid(name + "_Borde_Der", f, borders, stoneMat, 10, BorderThickness, 1, BorderHeight, -Thickness, true);
         }
 
         static void Path(string zone, Knot[] knots, bool indoors, Vector3? startTangent = null, Vector3? endTangent = null)
@@ -203,6 +231,106 @@ namespace DungeonTrack.Editor
                 size.x, 0, size.y / 2, -size.y / 2, false, 1, collision);
         }
 
+        static void ExteriorGround(Transform exterior)
+        {
+            // One continuous ground surface extends below the entire exterior road,
+            // including the finish approach, exit and first jump.
+            Vector3[] ground = { new Vector3(-158, 0, 16), RoomOutline[8], RoomOutline[7],
+                RoomOutline[6], RoomOutline[5], RoomOutline[4], RoomOutline[3], new Vector3(-8, 0, 168), new Vector3(-158, 0, 168) };
+            exteriorGroundCollider = PolygonSlab("Pasto_Suelo_Continuo_Exterior", ground, -.75f, -1.45f, exterior, grassMat, 9).GetComponent<MeshCollider>();
+        }
+
+        static Vector3[] MakeRoomOutline()
+        {
+            Vector3 exitRight = Vector3.Cross(Vector3.up, ExitForward);
+            // A 280 x 280 m square envelope, with the exterior finish corner cut out.
+            // The two doorway sections meet the existing arches without moving the track.
+            return new[] { new Vector3(-140, 0, -130), new Vector3(140, 0, -130),
+                new Vector3(140, 0, 150), new Vector3(-8, 0, 150), Entry + Vector3.forward * 12.3f,
+                Entry + Vector3.back * 12.3f, Exit + exitRight * 12.3f, Exit - exitRight * 12.3f,
+                new Vector3(-140, 0, 24) };
+        }
+
+        static float CrossXZ(Vector3 a, Vector3 b, Vector3 c)
+            => (b.x - a.x) * (c.z - a.z) - (b.z - a.z) * (c.x - a.x);
+
+        static bool InsideRoom(Vector3 p)
+        {
+            bool inside = false;
+            for (int i = 0, j = RoomOutline.Length - 1; i < RoomOutline.Length; j = i++)
+            {
+                Vector3 a = RoomOutline[i], b = RoomOutline[j];
+                if (Mathf.Abs(CrossXZ(a, b, p)) < .002f && p.x >= Mathf.Min(a.x, b.x) - .001f
+                    && p.x <= Mathf.Max(a.x, b.x) + .001f && p.z >= Mathf.Min(a.z, b.z) - .001f && p.z <= Mathf.Max(a.z, b.z) + .001f) return true;
+                if ((a.z > p.z) != (b.z > p.z) && p.x < (b.x - a.x) * (p.z - a.z) / (b.z - a.z) + a.x) inside = !inside;
+            }
+            return inside;
+        }
+
+        static List<int> Triangulate(Vector3[] outline)
+        {
+            float area = 0;
+            for (int i = 0; i < outline.Length; i++)
+                area += outline[i].x * outline[(i + 1) % outline.Length].z - outline[(i + 1) % outline.Length].x * outline[i].z;
+            var remaining = Enumerable.Range(0, outline.Length).ToList();
+            if (area < 0) remaining.Reverse();
+            var triangles = new List<int>();
+            while (remaining.Count > 3)
+            {
+                bool clipped = false;
+                for (int i = 0; i < remaining.Count; i++)
+                {
+                    int a = remaining[(i + remaining.Count - 1) % remaining.Count], b = remaining[i], c = remaining[(i + 1) % remaining.Count];
+                    if (CrossXZ(outline[a], outline[b], outline[c]) <= .0001f) continue;
+                    bool contains = remaining.Any(k => k != a && k != b && k != c
+                        && CrossXZ(outline[a], outline[b], outline[k]) >= -.0001f
+                        && CrossXZ(outline[b], outline[c], outline[k]) >= -.0001f
+                        && CrossXZ(outline[c], outline[a], outline[k]) >= -.0001f);
+                    if (contains) continue;
+                    triangles.AddRange(new[] { a, b, c }); remaining.RemoveAt(i); clipped = true; break;
+                }
+                if (!clipped) throw new InvalidOperationException("El contorno de la sala o del pasto se cruza.");
+            }
+            triangles.AddRange(remaining);
+            return triangles;
+        }
+
+        static ProBuilderMesh PolygonSlab(string name, Vector3[] outline, float top, float bottom, Transform parent, Material material, int layer)
+        {
+            var geo = new Geometry();
+            var triangles = Triangulate(outline);
+            Func<int, float, Vector3> at = (index, height) => new Vector3(outline[index].x, height, outline[index].z);
+            for (int i = 0; i < triangles.Count; i += 3)
+            {
+                int a = triangles[i], b = triangles[i + 1], c = triangles[i + 2];
+                geo.Triangle(at(a, top), at(c, top), at(b, top));
+                geo.Triangle(at(a, bottom), at(b, bottom), at(c, bottom));
+            }
+            float area = 0;
+            for (int i = 0; i < outline.Length; i++) area += CrossXZ(Vector3.zero, outline[i], outline[(i + 1) % outline.Length]);
+            for (int i = 0; i < outline.Length; i++)
+            {
+                int j = (i + 1) % outline.Length;
+                if (area > 0) geo.Quad(at(i, top), at(j, top), at(j, bottom), at(i, bottom));
+                else geo.Quad(at(i, bottom), at(j, bottom), at(j, top), at(i, top));
+            }
+            return Mesh(name, geo, parent, material, layer);
+        }
+
+        static void DungeonRoom(Transform circuit)
+        {
+            var floor = Group("09_Suelo_Sala_Y_Landmark", circuit);
+            roomFloorCollider = PolygonSlab("Sala_Suelo_Libre_Central", RoomOutline, RoomFloor, RoomFloor - 1, floor, stoneMat, 10).GetComponent<MeshCollider>();
+            PolygonSlab("Sala_Techo_Unico_60m", RoomOutline, CeilingHeight + 1, CeilingHeight, roofs, roofMat, 10);
+            for (int i = 0; i < RoomOutline.Length; i++)
+            {
+                Vector3 a = RoomOutline[i], b = RoomOutline[(i + 1) % RoomOutline.Length];
+                bool doorway = i == 4 || i == 6;
+                Solid(doorway ? "Sala_Dintel_" + (i == 4 ? "Entrada" : "Salida") : "Sala_Pared_Perimetral_" + i,
+                    Straight(a, b, 2), walls, stoneMat, 10, 2, 0, CeilingHeight, doorway ? 16 : RoomFloor - 1, false);
+            }
+        }
+
         static void Fork(Transform root)
         {
             // At each junction the three 6 m mouths tile the full 18 m track with no gaps.
@@ -224,14 +352,8 @@ namespace DungeonTrack.Editor
                 }
                 string label = side == 0 ? "Centro_Rapido_Reserva_Hacha" : side < 0 ? "Lateral_Interior_Largo" : "Lateral_Exterior_Largo";
                 Solid("Z1_Bifurcacion_" + label, f, roads, roadMat, 11, 0, 0, 0, -Thickness, true, 7);
+                TrackBorders("Z1_Bifurcacion_" + label, f);
             }
-            // A simple hall encloses all three routes. Openings align with the main road.
-            Box("Sala_Bifurcacion_Pared_Norte", new Vector3(9, 7, 123.5f), new Vector3(62, 14, 1.4f), walls, stoneMat);
-            Box("Sala_Bifurcacion_Pared_Sur", new Vector3(9, 7, 40.5f), new Vector3(62, 14, 1.4f), walls, stoneMat);
-            foreach (float x in new[] { -22f, 40f })
-                foreach (float z in new[] { 56.25f, 107.75f })
-                    Box("Sala_Hombro_" + serial++, new Vector3(x, 7, z), new Vector3(1.4f, 14, 31.5f), walls, stoneMat);
-            Box("Sala_Bifurcacion_Techo", new Vector3(9, 14.25f, 82), new Vector3(63.4f, .5f, 84.4f), roofs, roofMat);
         }
 
         static void Arch(string name, Vector3 center, Vector3 forward, Transform parent)
@@ -289,7 +411,7 @@ namespace DungeonTrack.Editor
             Scene previous = SceneManager.GetActiveScene();
             Scene scene = EditorSceneManager.OpenScene(staging, OpenSceneMode.Additive);
             SceneManager.SetActiveScene(scene);
-            records.Clear(); serial = 0;
+            records.Clear(); borderRecords.Clear();
             try
             {
                 // Operates exclusively on the copied scene, including its prefab instances.
@@ -307,8 +429,8 @@ namespace DungeonTrack.Editor
                 blackMat = Material("Meta_Oscuro", new Color(.08f, .10f, .14f));
                 cyanMat = Material("Arcos_Celeste", new Color(.17f, .67f, .73f));
                 var circuit = Group("CIRCUITO_MAZMORRA_PROBUILDER");
-                roads = Group("01_Pista_Editable_18m", circuit);
-                walls = Group("02_Paredes_Simples", circuit);
+                roads = Group("01_Pista_Editable_18_24_32m", circuit);
+                walls = Group("02_Paredes_Sala_60m", circuit);
                 roofs = Group("03_Techos_Ocultar_Para_Editar", circuit);
                 var exterior = Group("04_Pasto_Exterior", circuit);
                 var arches = Group("05_Arcos_Entrada_Salida", circuit);
@@ -319,6 +441,7 @@ namespace DungeonTrack.Editor
                     light.intensity = 1.2f;
                 }
                 var reserves = Group("07_Reservas_Trampas_Y_Landmark", circuit);
+                borders = Group("08_Bordes_Contencion_1_4m", circuit);
 
                 Path("Z1_Meta_Aproximacion", new[] { new Knot(-104, 62), new Knot(-94, 78), new Knot(-78, 82), new Knot(-57, 82) }, false, new Vector3(3, 0, 15), Vector3.right * 21);
                 // First small jump follows the finish. The ramps and landings are editable meshes.
@@ -326,33 +449,29 @@ namespace DungeonTrack.Editor
                 Corridor("Z1_Salto1_Recepcion", Frames(new Knot(-42, 82, .5f), new Knot(-30, 82), new Vector3(12, -.9f, 0), new Vector3(12, 0, 0)), false);
                 Corridor("Z1_Entrada_Mazmorra", Straight(new Vector3(-30, 0, 82), new Vector3(-22, 0, 82), Width), true);
                 Fork(circuit);
-                Path("Z2_Curva_Drift_Peralte", new[] { new Knot(40, 82), new Knot(74, 79, 0, 5), new Knot(96, 64, 0, 9), new Knot(108, 36, 0, 9), new Knot(108, 4, 0, 5) }, true, Vector3.right * 34, Vector3.back * 32);
-                Path("Z3_Recta_Reserva_Piso", new[] { new Knot(108, 4, 0, 5), new Knot(106, -35, 0, 3), new Knot(100, -59) }, true, Vector3.back * 32, new Vector3(-7, 0, -18));
+                Path("Z2_Curva_Drift_Peralte", new[] { new Knot(40, 82), new Knot(74, 79, 0, 5, 24), new Knot(96, 64, 0, 9, 24), new Knot(108, 36, 0, 9, 24), new Knot(108, 4, 0, 5, 24) }, true, Vector3.right * 34, Vector3.back * 32);
+                Path("Z3_Recta_Reserva_Piso", new[] { new Knot(108, 4, 0, 5, 24), new Knot(106, -35, 0, 3, 24), new Knot(100, -59, 0, 0, 24) }, true, Vector3.back * 32, new Vector3(-7, 0, -18));
                 Vector3 jumpDir = new Vector3(-.6f, 0, -.8f), launch = new Vector3(89.2f, 1.8f, -73.4f), landing = launch + jumpDir * 3.5f;
                 landing.y = .3f;
-                Corridor("Z3_Salto2_Despegue", Frames(new Knot(100, -59), new Knot(launch.x, launch.z, launch.y), new Vector3(-7, 0, -18), new Vector3(-10.8f, 3.6f, -14.4f)), true);
-                Corridor("Z3_Salto2_Recepcion", Frames(new Knot(landing.x, landing.z, landing.y), new Knot(67, -94), jumpDir * 22 + Vector3.down, new Vector3(-24, 0, -12)), true);
-                // Walls/roof bridge the jump without adding a road collider in the gap.
-                var gapFrames = Straight(launch, landing, Width);
-                Solid("Z3_Salto2_Pared_Izq", gapFrames, walls, stoneMat, 10, 1.3f, -1, CeilingHeight, -5, false);
-                Solid("Z3_Salto2_Pared_Der", gapFrames, walls, stoneMat, 10, 1.3f, 1, CeilingHeight, -5, false);
-                Solid("Z3_Salto2_Techo", gapFrames, roofs, roofMat, 10, Width + 2.6f, 0, CeilingHeight + .5f, CeilingHeight, false, 7);
-                Path("Z4_Curva_Amplia", new[] { new Knot(67, -94), new Knot(36, -104, 0, 7), new Knot(-14, -103, 0, 7), new Knot(-61, -96, 0, 9), new Knot(-90, -78, 0, 9), new Knot(-100, -53, 0, 3) }, true, new Vector3(-24, 0, -12), Vector3.forward * 25);
-                Path("Z4_Subida_Puente_Bajada", new[] { new Knot(-100, -53, 0, 3), new Knot(-96, -30, 3), new Knot(-83, -8, 8), new Knot(-86, 12, 6), new Knot(-101, 35) }, true, Vector3.forward * 25, new Vector3(-8, 0, 16.5f));
+                Corridor("Z3_Salto2_Despegue", Frames(new Knot(100, -59, 0, 0, 24), new Knot(launch.x, launch.z, launch.y, 0, 24), new Vector3(-7, 0, -18), new Vector3(-10.8f, 3.6f, -14.4f)), true);
+                Corridor("Z3_Salto2_Recepcion", Frames(new Knot(landing.x, landing.z, landing.y, 0, 24), new Knot(67, -94, 0, 0, 32), jumpDir * 22 + Vector3.down, new Vector3(-24, 0, -12)), true);
+                // Continue the low lateral barriers across the jump. The ground remains
+                // open at the intentional gap, inside the large dungeon room.
+                var gapFrames = Straight(launch, landing, 24);
+                TrackBorders("Z3_Salto2", gapFrames);
+                Path("Z4_Curva_Amplia", new[] { new Knot(67, -94, 0, 0, 32), new Knot(36, -104, 3, 7, 32), new Knot(-14, -103, 9, 7, 32), new Knot(-61, -96, 15, 9, 32), new Knot(-90, -78, 20, 9, 28), new Knot(-100, -53, 20, 3) }, true, new Vector3(-24, 0, -12), Vector3.forward * 25);
+                Path("Z4_Subida_Puente_Bajada", new[] { new Knot(-100, -53, 20, 3), new Knot(-96, -30, 23), new Knot(-83, -8, 28), new Knot(-86, 12, 19), new Knot(-101, 35) }, true, Vector3.forward * 25, new Vector3(-8, 0, 16.5f));
                 Path("Z1_Salida_Exterior", new[] { new Knot(-101, 35), new Knot(-104, 48), new Knot(-104, 62) }, false, new Vector3(-8, 0, 16.5f), new Vector3(3, 0, 15));
 
-                Box("Pasto_Norte_Exterior", new Vector3(-64, -1.05f, 135), new Vector3(148, .7f, 48), exterior, grassMat, 9);
-                Box("Pasto_Oeste_Exterior", new Vector3(-132, -1.05f, 70), new Vector3(35, .7f, 85), exterior, grassMat, 9);
-                var island = new Geometry();
-                island.Quad(new Vector3(-92, -.75f, 68), new Vector3(-75, -.75f, 71), new Vector3(-40, -.75f, 69), new Vector3(-65, -.75f, 57));
-                Mesh("Pasto_Isla_Interior_Z1", island, exterior, grassMat, 9);
-                Arch("Entrada", new Vector3(-28, 0, 82), Vector3.right, arches);
-                Arch("Salida", new Vector3(-101, 0, 35), new Vector3(-8, 0, 16.5f).normalized, arches);
-                Group("Landmark_Central_Reserva_110x100m", reserves).position = new Vector3(0, 0, -5);
+                DungeonRoom(circuit);
+                ExteriorGround(exterior);
+                Arch("Entrada", Entry, Vector3.right, arches);
+                Arch("Salida", Exit, ExitForward, arches);
+                Group("Landmark_Central_Reserva_110x100m", reserves).position = new Vector3(0, RoomFloor, -5);
                 Group("Z1_Hacha_Centro_Pendiente", reserves).position = new Vector3(9, 0, 82);
                 Group("Z2_Pinchos_Boost_Pendiente", reserves).position = new Vector3(106, 0, 35);
                 Group("Z3_Piso_Desmoronable_Pendiente", reserves).position = new Vector3(106, 0, -25);
-                Group("Z4_Rocas_Pendiente", reserves).position = new Vector3(-68, 0, -96);
+                Group("Z4_Rocas_Pendiente", reserves).position = new Vector3(-68, 16, -96);
                 Group("Z1_Martillos_Pendiente", reserves).position = new Vector3(-102, 0, 56);
                 foreach (var record in records.Where(r => r.route.StartsWith("Z2") || r.route.StartsWith("Z3") || r.route.StartsWith("Z4")))
                     Light("Luz_" + record.route, record.frames[record.frames.Count / 2].p + Vector3.up * 7, lighting);
@@ -482,13 +601,63 @@ namespace DungeonTrack.Editor
                 if (records.Any(r => r.mesh.GetComponent<MeshCollider>().Raycast(new Ray(gap + Vector3.up * 10, Vector3.down), out _, 30)))
                     throw new InvalidOperationException("Un salto tiene un collider de carretera en el hueco.");
 
+            int borderChecks = 0;
+            foreach (var border in borderRecords)
+            {
+                for (int row = 1; row < border.frames.Count - 1; row++)
+                {
+                    var frame = border.frames[row];
+                    Vector3 origin = frame.At(border.side * (frame.width / 2 - .3f), .7f);
+                    if (!border.collider.Raycast(new Ray(origin, frame.right * border.side), out _, BorderThickness + .8f))
+                        throw new InvalidOperationException("Borde de contención discontinuo: " + border.name + " fila " + row);
+                    borderChecks++;
+                }
+            }
+
+            int groundChecks = 0;
+            foreach (var record in records.Where(r => r.route.StartsWith("Z1_Meta_") || r.route.StartsWith("Z1_Salto1_") || r.route.StartsWith("Z1_Salida_")))
+                foreach (var frame in record.frames.Skip(1).Take(record.frames.Count - 2))
+                    foreach (float fraction in new[] { -.49f, 0, .49f })
+                    {
+                        Vector3 p = frame.At(frame.width * fraction);
+                        if (!exteriorGroundCollider.Raycast(new Ray(p + Vector3.up * 10, Vector3.down), out var groundHit, 100)
+                            || Mathf.Abs(groundHit.point.y + .75f) > .01f)
+                            throw new InvalidOperationException("Falta pasto bajo la pista exterior: " + record.route);
+                        groundChecks++;
+                    }
+            foreach (var record in records.Where(r => !(r.route.StartsWith("Z1_Meta_") || r.route.StartsWith("Z1_Salto1_") || r.route.StartsWith("Z1_Salida_"))))
+                foreach (var frame in record.frames)
+                {
+                    if (record.route == "Z1_Entrada_Mazmorra" && frame.p.x < Entry.x) continue;
+                    foreach (float side in new[] { -1f, 1f })
+                    {
+                        Vector3 edge = frame.At(side * (frame.width / 2 + BorderThickness));
+                        if (!InsideRoom(edge)) throw new InvalidOperationException("La sala corta el borde de la pista: " + record.route);
+                        if (edge.y <= RoomFloor + .2f) throw new InvalidOperationException("El suelo de la sala invade la carretera: " + record.route);
+                    }
+                }
+            if (!roomFloorCollider.Raycast(new Ray(new Vector3(0, 2, -5), Vector3.down), out var centreHit, 15)
+                || Mathf.Abs(centreHit.point.y - RoomFloor) > .01f)
+                throw new InvalidOperationException("Falta el suelo libre para el landmark central.");
+            foreach (var gate in new[] { (Entry, Vector3.right), (Exit, ExitForward) })
+                foreach (float offset in new[] { -Width * .43f, 0, Width * .43f })
+                {
+                    Vector3 right = Vector3.Cross(Vector3.up, gate.Item2);
+                    var ray = new Ray(gate.Item1 + right * offset + Vector3.up * 2 - gate.Item2 * 2, gate.Item2);
+                    if (walls.GetComponentsInChildren<MeshCollider>().Any(c => c.Raycast(ray, out _, 4)))
+                        throw new InvalidOperationException("Una pared bloquea el arco de entrada o salida.");
+                }
+
             var all = scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<ProBuilderMesh>(true)).ToArray();
             File.WriteAllText(Folder + "/Validation.txt", "Unity " + Application.unityVersion + "\n" +
-                "Ancho principal: 18 m. Ancho de cada ramal: 18 m; bocas de unión: 6 m cada una.\n" +
+                "Anchos: exterior y roja 18 m, azul 24 m, violeta 32 m; transiciones graduales. Ramales: hasta 18 m; bocas 6 m.\n" +
                 "Mallas ProBuilder: " + all.Length + ". Tramos de carretera: " + records.Count + ".\n" +
                 "Raycasts sobre superficie: " + checks + ", correctos. Triángulos sin degeneraciones.\n" +
+                "Bordes bajos: " + BorderHeight.ToString("F1") + " m. Raycasts laterales: " + borderChecks + ", correctos.\n" +
+                "Sala: envolvente 280 x 280 m, esquina exterior recortada, techo a 60 m, centro libre 110 x 100 m. Portales sin paredes que los bloqueen.\n" +
+                "Pasto exterior: " + groundChecks + " raycasts bajo la carretera, correctos. Suelo central de la sala conservado.\n" +
                 "Ramal central: " + middle.ToString("F1") + " m; lateral interior: " + inside.ToString("F1") + " m; lateral exterior: " + outside.ToString("F1") + " m.\n" +
-                "Saltos: dos, huecos de 3 m y 3.5 m. Peralte máximo: 9 grados. Puente: 8 m de altura.\n" +
+                "Saltos: dos, huecos de 3 m y 3.5 m. Peralte máximo: 9 grados. Roja: cima aproximada 28 m, bajada hasta 0 m. Violeta: izquierda 20 m, derecha 0 m.\n" +
                 "Trampas y comportamiento de salto del kart pendientes de ajuste en Play Mode.\n");
         }
 
@@ -521,6 +690,9 @@ namespace DungeonTrack.Editor
                 camera.fieldOfView = 60; camera.transform.position = new Vector3(-63, 6, 82); camera.transform.LookAt(new Vector3(15, 3, 82));
                 ceilingGroup.gameObject.SetActive(true);
                 Render(camera, Folder + "/Preview/Entrada.png", 1600, 900);
+                camera.fieldOfView = 65;
+                camera.transform.position = new Vector3(32, 25, 70); camera.transform.LookAt(new Vector3(-8, 7, -25));
+                Render(camera, Folder + "/Preview/Sala.png", 1600, 1000);
             }
             finally
             {

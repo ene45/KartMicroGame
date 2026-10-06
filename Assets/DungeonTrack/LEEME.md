@@ -1,46 +1,39 @@
-# Circuito de mazmorra
+# Circuito de mazmorra — ajustes
 
-Esta entrega incluye la escena generada, sus materiales, vistas previas y el generador de editor. Importá el paquete en el proyecto Kart Microgame y abrí `Assets/DungeonTrack/DungeonCircuit 4.unity`.
+Abrí `Assets/DungeonTrack/DungeonCircuit_Ajustes.unity`. Esta entrega incluye la escena, materiales, vistas de Unity y un generador de editor para crear otras copias. La escena usa el kart, la cámara, la interfaz y el sistema de vueltas del proyecto original. Probala abriéndola directamente y entrando en Play Mode.
 
-Escena generada: `Assets/DungeonTrack/DungeonCircuit.unity` (o una copia con nombre nuevo si ya existe).
+## Cambios de la pista
 
-Abrí la escena en Unity 6000.0.42f1 y usá Play para probarla con el kart, la cámara, la interfaz y el sistema de vueltas del proyecto. La escena se construye a partir de una copia de MainScene; MainScene y los scripts de conducción originales se conservan.
+- Mazmorra: una única sala con una envolvente de 280 × 280 m y techo a 60 m de altura. La esquina de la meta queda recortada para conservarla afuera y mantener los arcos de entrada y salida. El centro está libre para un landmark grande, con una referencia de 110 × 100 m y suelo a -4,5 m. Las paredes altas rodean la sala completa; la carretera interior tiene bordes bajos independientes.
+- Zona roja: cima aproximada de 28 m y una bajada más pronunciada hasta el arco de salida, a altura 0 m. El ancho sigue siendo 18 m.
+- Zona violeta: ancho de 32 m en el tramo inferior, con transición gradual a los tramos vecinos. La izquierda está a 20 m y la derecha a 0 m, siguiendo la imagen marcada. En el sentido horario de carrera se conduce de derecha a izquierda, subiendo mientras las futuras rocas pueden bajar hacia el kart.
+- Zona azul: curva y recta derechas de 24 m de ancho, conservando el peralte gradual hasta 9°.
+- Exterior: pasto continuo bajo la meta, la aproximación, el primer salto y el tramo de salida. La carretera exterior sigue teniendo 18 m de ancho.
+- Contención: bordes con collider, de 1,4 m de altura y 0,9 m de espesor, junto a toda la carretera interior, incluidos los tres caminos y el segundo salto. Siguen las alturas y el peralte de la pista.
 
-## Recorrido
-
-Se conduce en sentido horario, siguiendo el croquis. La meta está en la recta superior izquierda.
-
-- Zona 1: meta, salto pequeño, arco de entrada, tres caminos y reunión antes de la zona 2. El central es corto; los laterales hacen un rodeo y dejan espacio para reservar la futura trampa del centro.
-- Zona 2: curva amplia con peralte gradual hasta 9 grados.
-- Zona 3: recta amplia para las futuras plataformas y segundo salto con recepción separada.
-- Zona 4: curva inferior, subida hasta 8 m y bajada hacia el arco de salida.
-- Exterior: vuelta por el tramo superior izquierdo y pasto, para desarrollar los futuros atajos.
-
-La carretera principal tiene 18 m de ancho. Los tres caminos abren progresivamente desde bocas de 6 m hasta un ancho útil cercano a 18 m; las bocas juntas ocupan los 18 m del tramo común. No se implementaron trampas, boost, caída de plataformas ni decoración del landmark.
+Se conservan los tres caminos de la entrada: el central mide 62 m y cada lateral aproximadamente 82 m. Los saltos tienen huecos iniciales de 3 m y 3,5 m. Las trampas, los boosts y la decoración del landmark quedan para la siguiente etapa.
 
 ## Editar con ProBuilder
 
-En la jerarquía, abrí `CIRCUITO_MAZMORRA_PROBUILDER`.
+En la jerarquía, abrí `CIRCUITO_MAZMORRA_PROBUILDER`:
 
-- `01_Pista_Editable_18m`: seleccionar un tramo y editar vértices, aristas o caras con ProBuilder. Hay siete bandas a lo ancho y divisiones aproximadamente cada 2 m a lo largo.
-- `02_Paredes_Simples`: piezas independientes de las carreteras.
-- `03_Techos_Ocultar_Para_Editar`: desactivar el grupo mientras editás y volver a activarlo para probar el interior.
-- `04_Pasto_Exterior`: superficies de pasto separadas.
-- `05_Arcos_Entrada_Salida`: arcos editables.
-- `07_Reservas_Trampas_Y_Landmark`: referencias vacías para el trabajo posterior.
+- `01_Pista_Editable_18_24_32m`: tramos de carretera; editar vértices, aristas o caras con ProBuilder.
+- `02_Paredes_Sala_60m`: paredes altas del recinto y dinteles sobre los portales.
+- `03_Techos_Ocultar_Para_Editar`: techo único. Desactivá el grupo para ver la sala desde arriba; podés moverlo verticalmente para cambiar la altura.
+- `04_Pasto_Exterior`: suelo exterior continuo.
+- `05_Arcos_Entrada_Salida`: arcos independientes.
+- `07_Reservas_Trampas_Y_Landmark`: referencias para el trabajo posterior.
+- `08_Bordes_Contencion_1_4m`: bordes bajos, separados de la carretera y de las paredes de la sala.
+- `09_Suelo_Sala_Y_Landmark`: suelo del recinto.
 
-Cada tramo es una malla estática de ProBuilder con collider. No depende de un generador en ejecución. Las uniones de tramos tienen vértices coincidentes, pero pertenecen a objetos distintos: si movés un extremo, mové también el extremo del tramo vecino para mantener la unión. Los saltos tienen huecos intencionales.
+Son mallas estáticas de ProBuilder: el generador no corre durante la partida. La carretera tiene siete bandas a lo ancho y divisiones aproximadamente cada 2 m a lo largo. Las piezas vecinas son objetos independientes; al mover una unión, mové ambos extremos y sus bordes para conservar la continuidad.
 
-El menú `Tools > Dungeon Track > Crear una copia nueva del circuito` genera otra escena con un nombre nuevo. No sobrescribe la escena que editaste.
+`Tools > Dungeon Track > Crear una copia nueva del circuito` crea otra escena con nombre nuevo y conserva las escenas que editaste. La escena anterior `DungeonCircuit 4` se conserva en el proyecto local del usuario; el paquete actualizado entrega la nueva versión de ajustes.
 
-## Validación y ajustes pendientes
+## Validación
 
-`Validation.txt` registra la comprobación de los colliders y de la geometría. `Preview` contiene vistas de la pista; en planta y perspectiva los techos están ocultos para verla completa.
+Generación y reapertura en Unity 6000.0.42f1 con ProBuilder 6.0.4: 114 mallas editables y 28 tramos de carretera conservados con sus colliders. Pasaron 2745 raycasts sobre la carretera, 962 contra los bordes y 213 para comprobar el pasto bajo la pista exterior. También se revisaron los triángulos, las uniones, los huecos de salto, la ubicación de la carretera dentro de la sala y las aperturas de los arcos.
 
-Los saltos tienen huecos iniciales de 3 m y 3,5 m. Sus medidas, aterrizajes y comportamiento a diferentes velocidades deben ajustarse conduciendo el kart, como se acordó. El bloque inicial es para iterar sobre la pista, no una calibración final de la carrera.
+`Validation.txt` conserva el resultado. En `Preview`, `Planta` y `Perspectiva` muestran la sala con el techo oculto; `Sala` y `Entrada` muestran el interior con el techo activo.
 
-La nueva escena no reemplaza la escena del menú ni cambia la lista de escenas del build. Para probarla, abrila directamente. La integración con el menú se puede hacer al terminar de ajustar la pista.
-
-El generador se compiló y ejecutó en Unity 6000.0.42f1 con ProBuilder 6.0.4. La escena contiene 125 mallas ProBuilder y 28 tramos de carretera. Pasaron 2715 comprobaciones de superficie mediante raycasts, la revisión de triángulos y uniones y la reapertura de la escena guardada con sus mallas y colliders conservados. Las vistas previas se capturaron desde esa escena en Unity.
-
-Si tenés abierta una copia anterior llamada `DungeonCircuit.unity`, esa copia corresponde a la generación fallida inicial y conserva la pista original. Abrí la escena incluida indicada arriba. La nueva generación asigna identificadores independientes a los tutoriales para poder abrirla junto a MainScene sin colisiones.
+Falta probar y calibrar las pendientes y los saltos conduciendo el kart. Sus valores están preparados para modificarlos manualmente. MainScene y los scripts de conducción se conservan; la nueva escena no cambia el menú ni la lista de escenas del build.
