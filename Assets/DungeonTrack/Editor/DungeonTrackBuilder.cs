@@ -21,6 +21,7 @@ namespace DungeonTrack.Editor
     {
         public const string Folder = "Assets/DungeonTrack";
         public const string ScenePath = Folder + "/DungeonCircuit.unity";
+        public static string LastGeneratedScenePath { get; private set; }
         const float Width = 18f;
         const float Step = 2f;
         const float Thickness = .6f;
@@ -67,7 +68,7 @@ namespace DungeonTrack.Editor
             Build(AssetDatabase.GenerateUniqueAssetPath(ScenePath));
         }
 
-        public static void BuildDefault() => Build(ScenePath);
+        public static void BuildDefault() => Build(AssetDatabase.GenerateUniqueAssetPath(ScenePath));
 
         static Transform Group(string name, Transform parent = null)
         {
@@ -101,11 +102,17 @@ namespace DungeonTrack.Editor
             pb.GetComponent<MeshRenderer>().sharedMaterial = material;
             if (collision)
             {
-                var collider = pb.gameObject.GetComponent<MeshCollider>() ?? pb.gameObject.AddComponent<MeshCollider>();
-                collider.sharedMesh = pb.GetComponent<MeshFilter>().sharedMesh;
+                // Unity's missing/destroyed component wrappers must be checked with its own
+                // null semantics. The C# ?? operator can keep an invalid native wrapper.
+                if (!pb.gameObject.TryGetComponent<MeshCollider>(out var collider))
+                    collider = pb.gameObject.AddComponent<MeshCollider>();
+                if (collider == null) throw new InvalidOperationException("No se pudo crear el collider: " + name);
+                collider.convex = false;
             }
             pb.ToMesh();
             pb.Refresh();
+            if (collision)
+                pb.GetComponent<MeshCollider>().sharedMesh = pb.GetComponent<MeshFilter>().sharedMesh;
             GameObjectUtility.SetStaticEditorFlags(pb.gameObject, StaticEditorFlags.BatchingStatic | StaticEditorFlags.ReflectionProbeStatic);
             return pb;
         }
@@ -265,9 +272,12 @@ namespace DungeonTrack.Editor
             if (File.Exists(output)) throw new IOException("La escena ya existe. Usá Crear una copia nueva para conservar tus ediciones.");
             Directory.CreateDirectory(Folder + "/Materials"); Directory.CreateDirectory(Folder + "/Preview");
             AssetDatabase.Refresh();
-            if (!AssetDatabase.CopyAsset("Assets/Karting/Scenes/MainScene.unity", output)) throw new IOException("No se pudo copiar MainScene.");
+            // Work in a temporary scene. An unsuccessful build must not leave a file that
+            // looks like the finished circuit but still contains the original track.
+            string staging = AssetDatabase.GenerateUniqueAssetPath(Folder + "/DungeonCircuit_BuildInProgress.unity");
+            if (!AssetDatabase.CopyAsset("Assets/Karting/Scenes/MainScene.unity", staging)) throw new IOException("No se pudo copiar MainScene.");
             Scene previous = SceneManager.GetActiveScene();
-            Scene scene = EditorSceneManager.OpenScene(output, OpenSceneMode.Additive);
+            Scene scene = EditorSceneManager.OpenScene(staging, OpenSceneMode.Additive);
             SceneManager.SetActiveScene(scene);
             records.Clear(); serial = 0;
             try
@@ -294,7 +304,7 @@ namespace DungeonTrack.Editor
                 var lighting = Group("06_Iluminacion", circuit);
                 var reserves = Group("07_Reservas_Trampas_Y_Landmark", circuit);
 
-                Path("Z1_Meta_Aproximacion", new[] { new Knot(-104, 62), new Knot(-98, 78), new Knot(-78, 82), new Knot(-57, 82) }, false, new Vector3(3, 0, 15), Vector3.right * 21);
+                Path("Z1_Meta_Aproximacion", new[] { new Knot(-104, 62), new Knot(-94, 78), new Knot(-78, 82), new Knot(-57, 82) }, false, new Vector3(3, 0, 15), Vector3.right * 21);
                 // First small jump follows the finish. The ramps and landings are editable meshes.
                 Corridor("Z1_Salto1_Despegue", Frames(new Knot(-57, 82), new Knot(-45, 82, 1.8f), new Vector3(12, 0, 0), new Vector3(12, 3.6f, 0)), false);
                 Corridor("Z1_Salto1_Recepcion", Frames(new Knot(-42, 82, .5f), new Knot(-30, 82), new Vector3(12, -.9f, 0), new Vector3(12, 0, 0)), false);
@@ -312,7 +322,7 @@ namespace DungeonTrack.Editor
                 Solid("Z3_Salto2_Pared_Der", gapFrames, walls, stoneMat, 10, 1.3f, 1, CeilingHeight, -5, false);
                 Solid("Z3_Salto2_Techo", gapFrames, roofs, roofMat, 10, Width + 2.6f, 0, CeilingHeight + .5f, CeilingHeight, false, 7);
                 Path("Z4_Curva_Amplia", new[] { new Knot(67, -94), new Knot(36, -104, 0, 7), new Knot(-14, -103, 0, 7), new Knot(-61, -96, 0, 9), new Knot(-90, -78, 0, 9), new Knot(-100, -53, 0, 3) }, true, new Vector3(-24, 0, -12), Vector3.forward * 25);
-                Path("Z4_Subida_Puente_Bajada", new[] { new Knot(-100, -53, 0, 3), new Knot(-90, -29, 3), new Knot(-72, -10, 8), new Knot(-88, 15, 6), new Knot(-101, 35) }, true, Vector3.forward * 25, new Vector3(-8, 0, 16.5f));
+                Path("Z4_Subida_Puente_Bajada", new[] { new Knot(-100, -53, 0, 3), new Knot(-96, -30, 3), new Knot(-83, -8, 8), new Knot(-86, 12, 6), new Knot(-101, 35) }, true, Vector3.forward * 25, new Vector3(-8, 0, 16.5f));
                 Path("Z1_Salida_Exterior", new[] { new Knot(-101, 35), new Knot(-104, 48), new Knot(-104, 62) }, false, new Vector3(-8, 0, 16.5f), new Vector3(3, 0, 15));
 
                 Box("Pasto_Norte_Exterior", new Vector3(-64, -1.05f, 135), new Vector3(148, .7f, 48), exterior, grassMat, 9);
@@ -338,18 +348,47 @@ namespace DungeonTrack.Editor
                 RenderSettings.fog = false;
                 RenderSettings.ambientMode = AmbientMode.Flat;
                 RenderSettings.ambientLight = new Color(.43f, .47f, .53f);
+                Validate(scene);
+                Preview(scene, circuit);
                 EditorSceneManager.MarkSceneDirty(scene);
                 if (!EditorSceneManager.SaveScene(scene, output)) throw new IOException("No se pudo guardar la escena.");
                 AssetDatabase.SaveAssets();
-                Validate(scene);
-                Preview(scene, circuit);
+                LastGeneratedScenePath = output;
                 Debug.Log("DUNGEON_TRACK_OK: " + output);
             }
             finally
             {
                 EditorSceneManager.CloseScene(scene, true);
                 if (previous.IsValid() && previous.isLoaded) SceneManager.SetActiveScene(previous);
+                AssetDatabase.DeleteAsset(staging);
                 AssetDatabase.Refresh();
+            }
+            VerifySavedScene(output);
+        }
+
+        public static void VerifySavedScene(string path)
+        {
+            Scene previous = SceneManager.GetActiveScene();
+            Scene loaded = EditorSceneManager.OpenScene(path, OpenSceneMode.Additive);
+            try
+            {
+                var root = loaded.GetRootGameObjects().FirstOrDefault(g => g.name == "CIRCUITO_MAZMORRA_PROBUILDER");
+                if (root == null) throw new InvalidOperationException("La escena guardada no contiene el circuito.");
+                var meshes = root.GetComponentsInChildren<ProBuilderMesh>(true);
+                if (meshes.Length < 50) throw new InvalidOperationException("La escena guardada está incompleta.");
+                foreach (var pb in meshes)
+                {
+                    if (pb.GetComponent<MeshFilter>().sharedMesh == null || pb.vertexCount == 0 || pb.faceCount == 0)
+                        throw new InvalidOperationException("La malla no se conservó al reabrir: " + pb.name);
+                    if (pb.name.StartsWith("Z") && (!pb.TryGetComponent<MeshCollider>(out var collider) || collider.sharedMesh == null))
+                        throw new InvalidOperationException("El collider no se conservó al reabrir: " + pb.name);
+                }
+                File.AppendAllText(Folder + "/Validation.txt", "Escena reabierta: " + meshes.Length + " mallas ProBuilder conservadas, colliders correctos.\n");
+            }
+            finally
+            {
+                EditorSceneManager.CloseScene(loaded, true);
+                if (previous.IsValid() && previous.isLoaded) SceneManager.SetActiveScene(previous);
             }
         }
 
@@ -406,8 +445,10 @@ namespace DungeonTrack.Editor
                     {
                         var p = record.mesh.positions;
                         Vector3 normal = Vector3.Cross(p[face.indexes[i + 1]] - p[face.indexes[i]], p[face.indexes[i + 2]] - p[face.indexes[i]]);
-                        if (normal.sqrMagnitude < .00000001f || (face.smoothingGroup == 1 && normal.y <= 0))
+                        if (normal.sqrMagnitude < .00000001f)
                             throw new InvalidOperationException("Triángulo degenerado: " + record.route);
+                        if (face.smoothingGroup == 1 && normal.y <= 0)
+                            throw new InvalidOperationException("Curva demasiado cerrada para el ancho de la carretera: " + record.route);
                     }
             }
             Func<string, float> length = label => records.Where(r => r.route.Contains(label)).Sum(r => Enumerable.Range(1, r.frames.Count - 1).Sum(i => Vector3.Distance(r.frames[i - 1].p, r.frames[i].p)));
@@ -479,3 +520,4 @@ namespace DungeonTrack.Editor
         }
     }
 }
+
