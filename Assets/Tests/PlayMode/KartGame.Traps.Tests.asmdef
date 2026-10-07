@@ -1,6 +1,6 @@
 {
   "name": "KartGame.Traps.Tests",
-  "references": ["KartGame"],
+  "references": ["KartGame", "MedievalCartoon"],
   "optionalUnityReferences": ["TestAssemblies"],
   "autoReferenced": false
 }

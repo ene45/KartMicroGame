@@ -1,0 +1,30 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "outputs/01_Medieval_Cartoon.png",
+  "items": [
+    {
+      "id": "Pared_Piedra",
+      "prompt": "Use case: stylized-concept. Asset type: final seamless tileable albedo texture for a Unity medieval cartoon 3D asset pack. Reference image 1 is STYLE ONLY: warm sandstone, chunky soft bevels, hand-painted cartoon surfaces. Produce a NEW flat square texture, 1024x1024, full bleed, exactly orthographic straight-on, perfectly edge-to-edge repeatable both axes. Neutral uniform diffuse illumination, subtle painted details, no perspective, no cast shadows, no ambient background, no objects, no border, no text, no watermark. Not a render of a tile, not a sheet of multiple samples. Subject: broad irregular rectangular limestone masonry blocks in staggered rows, warm light taupe and honey gray, softly beveled painted edges with thin dark mortar seams, stylized broad brush shading, sparse tiny chips. Pattern about four stone blocks across. Keep natural subdued contrast and no directional baked sunlight."
+    },
+    {
+      "id": "Techo_Piedra",
+      "prompt": "Use case: stylized-concept. Asset type: final seamless tileable albedo texture for a Unity medieval cartoon 3D asset pack. Reference image 1 is STYLE ONLY: warm sandstone, chunky soft bevels, hand-painted cartoon surfaces. Produce a NEW flat square texture, 1024x1024, full bleed, exactly orthographic straight-on, perfectly edge-to-edge repeatable both axes. Neutral uniform diffuse illumination, subtle painted details, no perspective, no cast shadows, no ambient background, no objects, no border, no text, no watermark. Not a render of a tile, not a sheet of multiple samples. Subject: medieval ceiling material made of medium rectangular pale sandstone panels, closely fitted staggered joints, warm sandy gray, restrained cracks and stone speckling, readable broad shapes. Flat stone panel pattern ONLY, no perspective vault, no arch rendered in perspective."
+    },
+    {
+      "id": "Piso_Adoquines",
+      "prompt": "Use case: stylized-concept. Asset type: final seamless tileable albedo texture for a Unity medieval cartoon 3D asset pack. Reference image 1 is STYLE ONLY: warm sandstone, chunky soft bevels, hand-painted cartoon surfaces. Produce a NEW flat square texture, 1024x1024, full bleed, exactly orthographic straight-on, perfectly edge-to-edge repeatable both axes. Neutral uniform diffuse illumination, subtle painted details, no perspective, no cast shadows, no ambient background, no objects, no border, no text, no watermark. Not a render of a tile, not a sheet of multiple samples. Subject: broad worn medieval paving flagstones, large softly rounded gray-beige polygons with slim warm dark seams, subtle wheel-polished flat centers, few rounded edge chips, no moss. Neutral and slightly darker than walls, low contrast suitable for a racing roadway."
+    },
+    {
+      "id": "Pasto",
+      "prompt": "Use case: stylized-concept. Asset type: final seamless tileable albedo texture for a Unity medieval cartoon 3D asset pack. Reference image 1 is STYLE ONLY: warm sandstone, chunky soft bevels, hand-painted cartoon surfaces. Produce a NEW flat square texture, 1024x1024, full bleed, exactly orthographic straight-on, perfectly edge-to-edge repeatable both axes. Neutral uniform diffuse illumination, subtle painted details, no perspective, no cast shadows, no ambient background, no objects, no border, no text, no watermark. Not a render of a tile, not a sheet of multiple samples. Subject: lush bright spring green cartoon grass ground, grouped hand-painted small grass blades and softer medium green patches, a few tiny yellow-green tufts, dense coverage, subtle variation. Top-down flat game terrain albedo, no individual flower objects, no soil border."
+    },
+    {
+      "id": "Madera",
+      "prompt": "Use case: stylized-concept. Asset type: final seamless tileable albedo texture for a Unity medieval cartoon 3D asset pack. Reference image 1 is STYLE ONLY: warm sandstone, chunky soft bevels, hand-painted cartoon surfaces. Produce a NEW flat square texture, 1024x1024, full bleed, exactly orthographic straight-on, perfectly edge-to-edge repeatable both axes. Neutral uniform diffuse illumination, subtle painted details, no perspective, no cast shadows, no ambient background, no objects, no border, no text, no watermark. Not a render of a tile, not a sheet of multiple samples. Subject: warm caramel oak wood grain, broad flowing stylized vertical grain with sparse rounded knots, hand painted soft variations, no planks or dividing seams. Suitable for barrels crates beams. Natural saturated brown, no gloss or reflections."
+    },
+    {
+      "id": "Piedra_Escultura",
+      "prompt": "Use case: stylized-concept. Asset type: final seamless tileable albedo texture for a Unity medieval cartoon 3D asset pack. Reference image 1 is STYLE ONLY: warm sandstone, chunky soft bevels, hand-painted cartoon surfaces. Produce a NEW flat square texture, 1024x1024, full bleed, exactly orthographic straight-on, perfectly edge-to-edge repeatable both axes. Neutral uniform diffuse illumination, subtle painted details, no perspective, no cast shadows, no ambient background, no objects, no border, no text, no watermark. Not a render of a tile, not a sheet of multiple samples. Subject: plain warm honey-gray limestone surface for a carved knight statue, fine chalky grain and subtle broad hand-painted warm variation, very sparse tiny chips and small cracks, NO blocks, NO mortar, NO brick pattern, NO carvings or recognizable shapes. Continuous low-contrast stone grain suitable over curved statue parts."
+    }
+  ]
+}

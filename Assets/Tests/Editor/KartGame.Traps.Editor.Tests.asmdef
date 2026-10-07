@@ -1,6 +1,6 @@
 {
   "name": "KartGame.Traps.Editor.Tests",
-  "references": ["KartGame", "DungeonTrack.Editor", "Unity.ProBuilder"],
+  "references": ["KartGame", "DungeonTrack.Editor", "Unity.ProBuilder", "MedievalCartoon", "MedievalCartoon.Editor"],
   "includePlatforms": ["Editor"],
   "optionalUnityReferences": ["TestAssemblies"],
   "autoReferenced": false

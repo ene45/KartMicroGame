@@ -1,0 +1,333 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4279991662944756803
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8795263152512952702}
+  m_Layer: 0
+  m_Name: Mojones_Repeticion_Recta
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8795263152512952702
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4279991662944756803}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 592480546065942097}
+  - {fileID: 6354939884863045323}
+  - {fileID: 8943672674458738958}
+  - {fileID: 1440678205272567331}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &990671678896101756
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8795263152512952702}
+    m_Modifications:
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 543445433715635459, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_Name
+      value: Mojon_Luz
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4c378160093c7164f8ad9244855a0f58, type: 3}
+--- !u!4 &592480546065942097 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+    type: 3}
+  m_PrefabInstance: {fileID: 990671678896101756}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1619372268479607054
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8795263152512952702}
+    m_Modifications:
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 543445433715635459, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_Name
+      value: Mojon_Luz
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4c378160093c7164f8ad9244855a0f58, type: 3}
+--- !u!4 &1440678205272567331 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+    type: 3}
+  m_PrefabInstance: {fileID: 1619372268479607054}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &6752641219618824678
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8795263152512952702}
+    m_Modifications:
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 543445433715635459, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_Name
+      value: Mojon_Luz
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4c378160093c7164f8ad9244855a0f58, type: 3}
+--- !u!4 &6354939884863045323 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+    type: 3}
+  m_PrefabInstance: {fileID: 6752641219618824678}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8762093542161546787
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8795263152512952702}
+    m_Modifications:
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 543445433715635459, guid: 4c378160093c7164f8ad9244855a0f58,
+        type: 3}
+      propertyPath: m_Name
+      value: Mojon_Luz
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4c378160093c7164f8ad9244855a0f58, type: 3}
+--- !u!4 &8943672674458738958 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 398422668077129517, guid: 4c378160093c7164f8ad9244855a0f58,
+    type: 3}
+  m_PrefabInstance: {fileID: 8762093542161546787}
+  m_PrefabAsset: {fileID: 0}
