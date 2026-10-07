@@ -1,6 +1,6 @@
 {
   "name": "DungeonTrack.Editor",
-  "references": ["Unity.ProBuilder", "KartGame", "Cinemachine", "Unity.RenderPipelines.Universal.Runtime", "Unity.RenderPipelines.Core.Runtime"],
+  "references": ["Unity.ProBuilder", "KartGame", "Cinemachine", "Unity.RenderPipelines.Universal.Runtime", "Unity.RenderPipelines.Core.Runtime", "MedievalCartoon", "MedievalCartoon.Editor"],
   "includePlatforms": ["Editor"],
   "autoReferenced": true
 }

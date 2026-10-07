@@ -17,7 +17,7 @@ public class MedievalAssetsTests
     public void LibraryContainsUsableNativeMeshesMaterialsAndNoExternalGameplayDependency()
     {
         var paths=AssetDatabase.FindAssets("t:Prefab",new[]{F+"/Prefabs"}).Select(AssetDatabase.GUIDToAssetPath).ToArray();
-        Assert.That(paths.Length,Is.EqualTo(67));
+        Assert.That(paths.Length,Is.EqualTo(76));
         foreach(string path in paths)
         {
             var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(path);
@@ -89,7 +89,7 @@ public class MedievalAssetsTests
     public void TextureSetIsRepeatableAndMaterialsReferenceIncludedTextures()
     {
         var textures=AssetDatabase.FindAssets("t:Texture2D",new[]{F+"/Textures"});
-        Assert.That(textures.Length,Is.EqualTo(6));
+        Assert.That(textures.Length,Is.EqualTo(8));
         foreach(string guid in textures)
         {
             string path=AssetDatabase.GUIDToAssetPath(guid);
