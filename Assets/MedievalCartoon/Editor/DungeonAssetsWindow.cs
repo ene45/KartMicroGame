@@ -13,6 +13,7 @@ namespace MedievalCartoon.Editor
             GUILayout.Label("Medieval cartoon · piedra gris y lava", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox("Los modelos están en Assets/MedievalCartoon/Prefabs. Arrastrá un prefab desde Project a Scene o Hierarchy. Las piezas se editan expandiendo cada objeto.", MessageType.Info);
             if (GUILayout.Button("Mostrar TODOS los assets en Project")) Show("Assets/MedievalCartoon/Prefabs");
+            if (GUILayout.Button("Mostrar escudo del guardián con cetro")) Show(GuardianShieldBuilder.PrefabPath);
             if (GUILayout.Button("Mostrar anillo, cadenas y 4 guardianes")) Show(LavaLandmarkBuilder.PrefabFolder);
             if (GUILayout.Button("Abrir catálogo de anillo y guardianes")) OpenScene(LavaLandmarkBuilder.CatalogPath);
             if (GUILayout.Button("Abrir circuito con anillo de lava")) OpenScene("Assets/DungeonTrack/DungeonCircuit_AnilloLava.unity");

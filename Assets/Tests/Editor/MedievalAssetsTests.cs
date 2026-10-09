@@ -17,7 +17,7 @@ public class MedievalAssetsTests
     public void LibraryContainsUsableNativeMeshesMaterialsAndNoExternalGameplayDependency()
     {
         var paths=AssetDatabase.FindAssets("t:Prefab",new[]{F+"/Prefabs"}).Select(AssetDatabase.GUIDToAssetPath).ToArray();
-        Assert.That(paths.Length,Is.EqualTo(76));
+        Assert.That(paths.Length,Is.EqualTo(77));
         foreach(string path in paths)
         {
             var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(path);
