@@ -1,0 +1,1 @@
+{"name":"MedievalCartoon.Editor","references":["MedievalCartoon","Unity.RenderPipelines.Universal.Runtime","Unity.RenderPipelines.Core.Runtime"],"includePlatforms":["Editor"],"autoReferenced":true}
