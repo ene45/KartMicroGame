@@ -1,0 +1,14 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "outputs/05_Cartoon_Tenebroso.png",
+  "items": [
+    {
+      "id": "Piedra_Gris_Tenebrosa",
+      "prompt": "Use case: stylized-concept. Asset type: final seamless square albedo texture for Unity 6 3D cartoon dungeon assets. Reference image 1 is ONLY a palette and painting style reference, not an edit target. Generate a new full-bleed flat texture, straight-on orthographic, square 1024x1024, tileable edge-to-edge along both axes. No scene, no objects, no text, no border, no perspective, no shadows, no watermarks. Subject: continuous carved stone surface, medium neutral charcoal gray with a very subtle cool violet undertone, soft low contrast hand-painted mottling, a few rounded chips and restrained fine cracks, broad cartoon brush treatment. No mortar, no masonry blocks, no recognisable carvings. This is for knight statues and a large volcanic stone ring. Diffuse neutral illumination; neither brown nor sandy nor black."
+    },
+    {
+      "id": "Lava_Corriente",
+      "prompt": "Use case: stylized-concept. Asset type: final seamless square albedo texture for Unity 6 3D cartoon dungeon assets. Reference image 1 is ONLY a palette and painting style reference, not an edit target. Generate a new full-bleed flat texture, straight-on orthographic, square 1024x1024, tileable edge-to-edge along both axes. No scene, no objects, no text, no border, no perspective, no shadows, no watermarks. Subject: stylized flowing molten lava, warm deep orange surface with irregular elongated vertical ribbons of golden orange and pale yellow heat, sparse dark maroon cooling crust islands. Clear soft cartoon shapes, restrained high contrast, seamless vertical flow pattern suitable for scrolling downward on a cylindrical waterfall. Uniform painting rather than lighting; not a scenic lava river, no smoke, no realistic photographic fire."
+    }
+  ]
+}
