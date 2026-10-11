@@ -467,6 +467,28 @@ namespace KartGame.KartSystems
             transform.rotation = Quaternion.Euler(euler);
         }
 
+        /// <summary>Reposition safely without changing race/countdown movement locks or lap progress.</summary>
+        public void TeleportTo(Vector3 position, Quaternion rotation)
+        {
+            if (IsTrapStunned) ReleaseTrapStun();
+            m_TrapBrakeDeceleration = 0f;
+            IsDrifting = WantsToDrift = false;
+            m_DriftTurningPower = 0f;
+            m_CurrentGrip = baseStats.Grip;
+            m_VerticalReference = rotation * Vector3.up;
+            m_LastCollisionNormal = Vector3.zero;
+            m_HasCollision = m_InAir = false;
+            m_PreviousGroundPercent = GroundPercent = 0f;
+            AirPercent = 1f;
+            Input = new InputData();
+            Rigidbody.linearVelocity = Rigidbody.angularVelocity = Vector3.zero;
+            Rigidbody.position = position;
+            Rigidbody.rotation = rotation;
+            transform.SetPositionAndRotation(position, rotation);
+            ActivateDriftVFX(false);
+            foreach (var trail in m_DriftTrailInstances) trail.trail.Clear();
+        }
+
         public float LocalSpeed()
         {
             if (m_CanMove)
